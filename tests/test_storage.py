@@ -3,6 +3,7 @@ import json
 from triage_app.models import (
     ExtractionPayload,
     NormalizedExtraction,
+    PipelineStatus,
     SessionEvent,
     SeverityLevel,
     TriageDecision,
@@ -60,6 +61,7 @@ def test_local_storage_writes_session_event_jsonl(tmp_path):
 
     payload = json.loads((tmp_path / "session_events.jsonl").read_text().strip())
     assert payload["session_id"] == "session-123"
+    assert payload["pipeline_status"] == "COMPLETE"
     assert payload["decision"]["triage_level"] == "EMERGENCY"
 
 
@@ -136,6 +138,9 @@ def test_snowflake_storage_writes_session_rule_and_symptom_rows():
             ],
             explanation_trace=["Triggered rule ER001"],
         ),
+        pipeline_status=PipelineStatus.COMPLETE,
+        raw_openai_response='{"symptoms":["chest_pain"]}',
+        app_version="test-version",
     )
 
     storage.write_event(event)
@@ -145,7 +150,9 @@ def test_snowflake_storage_writes_session_rule_and_symptom_rows():
 
     session_insert, session_params = connection.cursor_instance.executed[0]
     assert "insert into TRIAGE_PLATFORM.RAW.triage_sessions" in session_insert
+    assert "parse_json(%s)" in session_insert
     assert session_params[0] == "session-123"
+    assert session_params[7] == "COMPLETE"
 
     rule_insert, rule_params = connection.cursor_instance.executed[1]
     assert "insert into TRIAGE_PLATFORM.RAW.triage_rule_hits" in rule_insert

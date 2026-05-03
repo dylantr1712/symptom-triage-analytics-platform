@@ -52,3 +52,19 @@ def test_triage_returns_see_gp_for_moderate_long_duration_symptoms():
 
     assert decision.triage_level == TriageLevel.SEE_GP
     assert any(rule.rule_id == "GP001" for rule in decision.rules_triggered)
+
+
+def test_emergency_rules_override_gp_rules():
+    normalized = NormalizedExtraction(
+        normalized_symptoms=["shortness_of_breath", "cough"],
+        unmapped_symptoms=[],
+        duration_bucket=DurationBucket.OVER_1_WEEK,
+        severity=SeverityLevel.SEVERE,
+        age_years=61,
+        severity_reasons=["high-risk respiratory symptom present"],
+    )
+
+    decision = evaluate_triage(normalized)
+
+    assert decision.triage_level == TriageLevel.EMERGENCY
+    assert any(rule.rule_id == "ER001" for rule in decision.rules_triggered)

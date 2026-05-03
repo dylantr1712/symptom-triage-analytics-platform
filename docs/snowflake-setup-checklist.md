@@ -28,6 +28,9 @@ Populate `.env` from `.env.example` with:
 - `SNOWFLAKE_RAW_SCHEMA` set to `RAW` for dbt sources
 - `SNOWFLAKE_ROLE`
 
+## Existing database upgrade
+If the v1 tables already exist, run `docs/snowflake-phase2-migration.sql` before restarting the app. It adds the Phase 2 audit columns used by the storage writer and dbt models.
+
 ## 4. Copy dbt profile
 - Copy `dbt/profiles/profiles.yml.example` to `dbt/profiles/profiles.yml`
 - Confirm the environment variables are present
@@ -50,10 +53,15 @@ Recommended columns:
 - `duration_bucket`
 - `severity`
 - `triage_level`
+- `pipeline_status`
 - `validation_status`
 - `follow_up_question`
 - `explanation`
 - `next_step`
+- `raw_openai_response`
+- `unmapped_symptoms`
+- `severity_reasons`
+- `app_version`
 
 ### `triage_rule_hits`
 - `session_id`

@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: fct_triage_sessions
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+          - unique
+      - name: triage_level
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["SELF_CARE", "SEE_GP", "EMERGENCY"]
+      - name: pipeline_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["COMPLETE", "INSUFFICIENT_INFORMATION", "UNSUPPORTED"]
+
+  - name: fct_triage_rule_hits
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+      - name: rule_id
+        tests:
+          - not_null
+
+  - name: fct_session_symptoms
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+      - name: symptom_code
+        tests:
+          - not_null

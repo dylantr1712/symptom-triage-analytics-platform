@@ -4,6 +4,7 @@ from triage_app.models import DurationBucket, ExtractionPayload, NormalizedExtra
 from triage_app.symptom_vocabulary import (
     MODERATE_CUE_KEYWORDS,
     SEVERE_CUE_KEYWORDS,
+    SYMPTOM_ALIASES,
     SUPPORTED_SYMPTOMS,
 )
 
@@ -13,6 +14,7 @@ def normalize_extraction(payload: ExtractionPayload) -> NormalizedExtraction:
     unmapped_symptoms: list[str] = []
     for symptom in payload.symptoms:
         normalized = symptom.strip().lower().replace(" ", "_")
+        normalized = SYMPTOM_ALIASES.get(normalized, normalized)
         if normalized in SUPPORTED_SYMPTOMS:
             normalized_symptoms.append(normalized)
         else:
@@ -55,4 +57,3 @@ def derive_severity(
 
     reasons.append("no severity cues available")
     return SeverityLevel.UNKNOWN, reasons
-

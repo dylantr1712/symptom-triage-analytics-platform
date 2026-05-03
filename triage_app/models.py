@@ -100,6 +100,9 @@ class SessionEvent:
     validation: ValidationResult | None
     normalized: NormalizedExtraction | None
     decision: TriageDecision | None
+    pipeline_status: PipelineStatus
+    raw_openai_response: str | None = None
+    app_version: str = "dev"
 
     @classmethod
     def create(
@@ -110,7 +113,13 @@ class SessionEvent:
         validation: ValidationResult | None,
         normalized: NormalizedExtraction | None,
         decision: TriageDecision | None,
+        pipeline_status: PipelineStatus | None = None,
+        raw_openai_response: str | None = None,
+        app_version: str = "dev",
     ) -> "SessionEvent":
+        if pipeline_status is None:
+            pipeline_status = PipelineStatus.COMPLETE if decision else PipelineStatus.INSUFFICIENT_INFORMATION
+
         return cls(
             session_id=session_id,
             created_at=datetime.now(timezone.utc).isoformat(),
@@ -119,8 +128,10 @@ class SessionEvent:
             validation=validation,
             normalized=normalized,
             decision=decision,
+            pipeline_status=pipeline_status,
+            raw_openai_response=raw_openai_response,
+            app_version=app_version,
         )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-

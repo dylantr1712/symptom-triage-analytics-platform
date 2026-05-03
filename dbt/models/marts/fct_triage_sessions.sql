@@ -11,10 +11,15 @@ select
     duration_bucket,
     severity,
     triage_level,
+    pipeline_status,
     validation_status,
     follow_up_question,
     explanation,
     next_step,
+    raw_openai_response,
+    unmapped_symptoms,
+    severity_reasons,
+    app_version,
     case when validation_status = 'INSUFFICIENT_INFORMATION' then true else false end as insufficient_information_flag
 from {{ ref('int_session_latest_decision') }}
 
@@ -24,4 +29,3 @@ where created_at >= (
     from {{ this }}
 )
 {% endif %}
-

@@ -16,6 +16,18 @@ SUPPORTED_SYMPTOMS = {
     "worsening_symptoms",
 }
 
+SYMPTOM_ALIASES = {
+    "breathless": "shortness_of_breath",
+    "short_of_breath": "shortness_of_breath",
+    "trouble_breathing": "shortness_of_breath",
+    "hard_to_breathe": "shortness_of_breath",
+    "tight_chest": "chest_pain",
+    "chest_tightness": "chest_pain",
+    "throwing_up": "vomiting",
+    "temperature": "fever",
+    "high_temperature": "fever",
+}
+
 LOW_RISK_SYMPTOMS = {
     "cough",
     "headache",
@@ -44,4 +56,3 @@ MODERATE_CUE_KEYWORDS = {
     "interferes with work",
     "persistent",
 }
-

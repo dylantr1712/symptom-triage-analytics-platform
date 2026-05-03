@@ -18,11 +18,12 @@ Rule-based conversational symptom triage platform with AI extraction only. This 
 - [tests](/C:/Project%20MDS/symptom-triage-analytics-platform/tests)
 - [dbt](/C:/Project%20MDS/symptom-triage-analytics-platform/dbt)
 - [docs/snowflake-setup-checklist.md](/C:/Project%20MDS/symptom-triage-analytics-platform/docs/snowflake-setup-checklist.md)
+- [.github/workflows/ci.yml](/C:/Project%20MDS/symptom-triage-analytics-platform/.github/workflows/ci.yml)
 
 ## Local development
 
 1. Create a virtual environment and install dependencies from `requirements.txt`
-2. Create `.env` with your Snowflake and OpenAI credentials
+2. Create `.env` from `.env.example` with your Snowflake and OpenAI credentials
 3. Set `SNOWFLAKE_SCHEMA=ANALYTICS` and `SNOWFLAKE_RAW_SCHEMA=RAW`
 4. Add `OPENAI_API_KEY` if you want live extraction
 5. Run `streamlit run app/streamlit_app.py`
@@ -35,6 +36,19 @@ Run:
 
 ```bash
 pytest -q
+```
+
+## CI/CD
+
+GitHub Actions runs Python tests, compile checks, Docker image builds, and `dbt parse` on pull requests and pushes to `main`.
+
+## Snowflake migrations
+
+For an existing v1 database, run:
+
+```sql
+-- in Snowsight
+-- docs/snowflake-phase2-migration.sql
 ```
 
 ## Docker

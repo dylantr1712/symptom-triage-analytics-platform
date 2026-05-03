@@ -44,8 +44,11 @@ class SnowflakeStorage:
                 (
                     f"insert into {database}.{raw_schema}.triage_sessions "
                     "(session_id, created_at, raw_text, age_years, duration_bucket, severity, "
-                    "triage_level, validation_status, follow_up_question, explanation, next_step) "
-                    "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                    "triage_level, pipeline_status, validation_status, follow_up_question, "
+                    "explanation, next_step, raw_openai_response, unmapped_symptoms, "
+                    "severity_reasons, app_version) "
+                    "select %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+                    "parse_json(%s), parse_json(%s), %s"
                 ),
                 (
                     event.session_id,
@@ -55,10 +58,15 @@ class SnowflakeStorage:
                     event.normalized.duration_bucket.value if event.normalized else event.extraction.duration_bucket,
                     event.normalized.severity.value if event.normalized else None,
                     event.decision.triage_level.value if event.decision else None,
+                    event.pipeline_status.value,
                     event.validation.status.value if event.validation else None,
                     event.validation.follow_up_question if event.validation else None,
                     event.decision.explanation if event.decision else None,
                     event.decision.next_step if event.decision else None,
+                    event.raw_openai_response,
+                    json.dumps(event.normalized.unmapped_symptoms if event.normalized else []),
+                    json.dumps(event.normalized.severity_reasons if event.normalized else []),
+                    event.app_version,
                 ),
             )
 

@@ -17,6 +17,8 @@ grant usage on schema TRIAGE_PLATFORM.ANALYTICS to role TRIAGE_APP_ROLE;
 grant create table on schema TRIAGE_PLATFORM.RAW to role TRIAGE_APP_ROLE;
 grant create view on schema TRIAGE_PLATFORM.ANALYTICS to role TRIAGE_APP_ROLE;
 grant create table on schema TRIAGE_PLATFORM.ANALYTICS to role TRIAGE_APP_ROLE;
+grant select, insert on all tables in schema TRIAGE_PLATFORM.RAW to role TRIAGE_APP_ROLE;
+grant select, insert on future tables in schema TRIAGE_PLATFORM.RAW to role TRIAGE_APP_ROLE;
 
 create or replace table TRIAGE_PLATFORM.RAW.triage_sessions (
     session_id string,
@@ -26,10 +28,15 @@ create or replace table TRIAGE_PLATFORM.RAW.triage_sessions (
     duration_bucket string,
     severity string,
     triage_level string,
+    pipeline_status string,
     validation_status string,
     follow_up_question string,
     explanation string,
-    next_step string
+    next_step string,
+    raw_openai_response string,
+    unmapped_symptoms variant,
+    severity_reasons variant,
+    app_version string
 );
 
 create or replace table TRIAGE_PLATFORM.RAW.triage_rule_hits (

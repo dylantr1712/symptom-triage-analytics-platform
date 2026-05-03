@@ -16,10 +16,14 @@ select
     duration_bucket,
     severity,
     triage_level,
+    pipeline_status,
     validation_status,
     follow_up_question,
     explanation,
-    next_step
+    next_step,
+    raw_openai_response,
+    unmapped_symptoms,
+    severity_reasons,
+    app_version
 from ranked
 where row_num = 1
-

@@ -43,6 +43,9 @@ def render_app() -> None:
                 validation=pipeline_result.validation,
                 normalized=pipeline_result.normalized,
                 decision=pipeline_result.decision,
+                pipeline_status=pipeline_result.status,
+                raw_openai_response=extraction_result.raw_response,
+                app_version=os.getenv("APP_VERSION", "dev"),
             )
             storage.write_event(event)
         except ValueError as exc:

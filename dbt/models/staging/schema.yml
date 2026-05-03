@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: stg_triage_sessions
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+      - name: duration_bucket
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["hours", "1_2_days", "3_7_days", "over_1_week", "unknown"]
+      - name: severity
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["mild", "moderate", "severe", "unknown"]
+      - name: triage_level
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["SELF_CARE", "SEE_GP", "EMERGENCY"]
+      - name: pipeline_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["COMPLETE", "INSUFFICIENT_INFORMATION", "UNSUPPORTED"]
+      - name: validation_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["VALID", "INSUFFICIENT_INFORMATION", "UNSUPPORTED"]
+
+  - name: stg_triage_rule_hits
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+      - name: rule_id
+        tests:
+          - not_null
+
+  - name: stg_triage_session_symptoms
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+      - name: symptom_code
+        tests:
+          - not_null
