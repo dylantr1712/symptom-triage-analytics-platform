@@ -2,25 +2,19 @@ from __future__ import annotations
 
 import os
 import uuid
-from pathlib import Path
 
 import streamlit as st
 
 from triage_app.extractor import OpenAIExtractionClient, StubExtractionClient, SymptomExtractor
 from triage_app.models import PipelineStatus, SessionEvent
 from triage_app.pipeline import run_triage_pipeline
-from triage_app.storage import LocalJsonlStorage
+from triage_app.storage import build_storage_from_env
 
 
 def build_extractor() -> SymptomExtractor:
     if os.getenv("OPENAI_API_KEY"):
         return SymptomExtractor(OpenAIExtractionClient())
     return SymptomExtractor(StubExtractionClient())
-
-
-def build_storage() -> LocalJsonlStorage:
-    log_path = Path("local_data") / "session_events.jsonl"
-    return LocalJsonlStorage(log_path)
 
 
 def render_app() -> None:
@@ -36,7 +30,7 @@ def render_app() -> None:
 
     if st.button("Assess symptoms", type="primary") and user_text.strip():
         extractor = build_extractor()
-        storage = build_storage()
+        storage = build_storage_from_env()
         session_id = str(uuid.uuid4())
 
         try:
@@ -46,6 +40,9 @@ def render_app() -> None:
             return
         except RuntimeError as exc:
             st.error(str(exc))
+            return
+        except Exception as exc:
+            st.error(f"Storage failed: {exc}")
             return
 
         pipeline_result = run_triage_pipeline(extraction_result.payload)
