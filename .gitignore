@@ -1,0 +1,10 @@
+.env
+.pytest_cache/
+.venv/
+__pycache__/
+local_data/
+dbt/logs/
+dbt/target/
+dbt/dbt_packages/
+.worktrees/
+
