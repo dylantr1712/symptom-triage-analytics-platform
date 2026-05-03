@@ -3,9 +3,8 @@ version: 2
 sources:
   - name: raw
     database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
-    schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}"
+    schema: "{{ env_var('SNOWFLAKE_RAW_SCHEMA', 'RAW') }}"
     tables:
       - name: triage_sessions
       - name: triage_rule_hits
       - name: triage_session_symptoms
-

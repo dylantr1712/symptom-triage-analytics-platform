@@ -24,7 +24,8 @@ Populate `.env` from `.env.example` with:
 - `SNOWFLAKE_PASSWORD`
 - `SNOWFLAKE_WAREHOUSE`
 - `SNOWFLAKE_DATABASE`
-- `SNOWFLAKE_SCHEMA`
+- `SNOWFLAKE_SCHEMA` set to `ANALYTICS` for dbt target models
+- `SNOWFLAKE_RAW_SCHEMA` set to `RAW` for dbt sources
 - `SNOWFLAKE_ROLE`
 
 ## 4. Copy dbt profile
@@ -72,4 +73,3 @@ Recommended columns:
 - Confirm rows land in Snowflake raw tables
 - Run `dbt run --profiles-dir /dbt/profiles`
 - Inspect the marts in the analytics schema
-
