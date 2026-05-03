@@ -35,6 +35,16 @@ def render_app() -> None:
 
         try:
             extraction_result = extractor.extract(user_text)
+            pipeline_result = run_triage_pipeline(extraction_result.payload)
+            event = SessionEvent.create(
+                session_id=session_id,
+                raw_text=user_text,
+                extraction=extraction_result.payload,
+                validation=pipeline_result.validation,
+                normalized=pipeline_result.normalized,
+                decision=pipeline_result.decision,
+            )
+            storage.write_event(event)
         except ValueError as exc:
             st.error(f"Extraction failed: {exc}")
             return
@@ -44,17 +54,6 @@ def render_app() -> None:
         except Exception as exc:
             st.error(f"Storage failed: {exc}")
             return
-
-        pipeline_result = run_triage_pipeline(extraction_result.payload)
-        event = SessionEvent.create(
-            session_id=session_id,
-            raw_text=user_text,
-            extraction=extraction_result.payload,
-            validation=pipeline_result.validation,
-            normalized=pipeline_result.normalized,
-            decision=pipeline_result.decision,
-        )
-        storage.write_event(event)
 
         st.subheader("Result")
         if pipeline_result.status == PipelineStatus.COMPLETE and pipeline_result.decision:

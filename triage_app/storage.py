@@ -37,12 +37,12 @@ class SnowflakeStorage:
         connection = self.connection_factory(**self.connection_parameters)
         cursor = connection.cursor()
         database = self.connection_parameters["database"]
-        schema = self.connection_parameters["schema"]
+        raw_schema = self.connection_parameters.get("raw_schema", self.connection_parameters["schema"])
 
         try:
             cursor.execute(
                 (
-                    f"insert into {database}.{schema}.triage_sessions "
+                    f"insert into {database}.{raw_schema}.triage_sessions "
                     "(session_id, created_at, raw_text, age_years, duration_bucket, severity, "
                     "triage_level, validation_status, follow_up_question, explanation, next_step) "
                     "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -66,9 +66,9 @@ class SnowflakeStorage:
                 for rule in event.decision.rules_triggered:
                     cursor.execute(
                         (
-                            f"insert into {database}.{schema}.triage_rule_hits "
+                            f"insert into {database}.{raw_schema}.triage_rule_hits "
                             "(session_id, rule_id, rule_name, matched_on, created_at) "
-                            "values (%s, %s, %s, parse_json(%s), %s)"
+                            "select %s, %s, %s, parse_json(%s), %s"
                         ),
                         (
                             event.session_id,
@@ -83,7 +83,7 @@ class SnowflakeStorage:
                 for symptom_code in event.normalized.normalized_symptoms:
                     cursor.execute(
                         (
-                            f"insert into {database}.{schema}.triage_session_symptoms "
+                            f"insert into {database}.{raw_schema}.triage_session_symptoms "
                             "(session_id, symptom_code, created_at) values (%s, %s, %s)"
                         ),
                         (
@@ -118,6 +118,7 @@ def build_storage_from_env() -> EventStorage:
         "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
         "database": os.getenv("SNOWFLAKE_DATABASE"),
         "schema": os.getenv("SNOWFLAKE_SCHEMA"),
+        "raw_schema": os.getenv("SNOWFLAKE_RAW_SCHEMA", "RAW"),
         "role": os.getenv("SNOWFLAKE_ROLE"),
     }
     if all(required.values()):

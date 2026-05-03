@@ -18,7 +18,8 @@ EXTRACTION_PROMPT = dedent(
     - age_years: integer or null
     - severity_cues: array of short phrases quoted or paraphrased from the user
     - missing_fields: array containing any of symptoms, duration_bucket, age_years, severity
-    - raw_evidence: object with optional evidence snippets
+    - raw_evidence: object with optional evidence snippets using the keys
+      symptoms_text, duration_text, age_text, severity_text
 
     Do not diagnose. Do not return prose outside JSON.
     """
@@ -52,7 +53,19 @@ EXTRACTION_SCHEMA = {
         },
         "raw_evidence": {
             "type": "object",
-            "additionalProperties": True,
+            "additionalProperties": False,
+            "properties": {
+                "symptoms_text": {"type": ["string", "null"]},
+                "duration_text": {"type": ["string", "null"]},
+                "age_text": {"type": ["string", "null"]},
+                "severity_text": {"type": ["string", "null"]},
+            },
+            "required": [
+                "symptoms_text",
+                "duration_text",
+                "age_text",
+                "severity_text",
+            ],
         },
     },
     "required": [
@@ -117,7 +130,12 @@ class StubExtractionClient:
             "age_years": None,
             "severity_cues": [],
             "missing_fields": [],
-            "raw_evidence": {"user_text": user_text},
+            "raw_evidence": {
+                "symptoms_text": user_text,
+                "duration_text": None,
+                "age_text": None,
+                "severity_text": None,
+            },
         }
 
         symptom_map = {
@@ -137,20 +155,28 @@ class StubExtractionClient:
 
         if "today" in lowered or "this morning" in lowered or "few hours" in lowered:
             payload["duration_bucket"] = "hours"
+            payload["raw_evidence"]["duration_text"] = "today/this morning/few hours"
         elif "2 days" in lowered or "two days" in lowered:
             payload["duration_bucket"] = "1_2_days"
+            payload["raw_evidence"]["duration_text"] = "2 days/two days"
         elif "week" in lowered:
             payload["duration_bucket"] = "over_1_week"
+            payload["raw_evidence"]["duration_text"] = "week"
 
         if "severe" in lowered or "hard to breathe" in lowered:
             payload["severity_cues"].append("severe")
+            payload["raw_evidence"]["severity_text"] = "severe"
         elif "moderate" in lowered:
             payload["severity_cues"].append("moderate")
+            payload["raw_evidence"]["severity_text"] = "moderate"
         elif "mild" in lowered or "slight" in lowered:
             payload["severity_cues"].append("mild")
+            payload["raw_evidence"]["severity_text"] = "mild/slight"
 
         age = _extract_first_int(lowered)
         payload["age_years"] = age
+        if age is not None:
+            payload["raw_evidence"]["age_text"] = str(age)
 
         if not payload["symptoms"]:
             payload["missing_fields"].append("symptoms")

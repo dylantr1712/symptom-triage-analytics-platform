@@ -92,7 +92,11 @@ class RecordingConnection:
 def test_snowflake_storage_writes_session_rule_and_symptom_rows():
     connection = RecordingConnection()
     storage = SnowflakeStorage(
-        connection_parameters={"database": "TRIAGE_PLATFORM", "schema": "RAW"},
+        connection_parameters={
+            "database": "TRIAGE_PLATFORM",
+            "schema": "ANALYTICS",
+            "raw_schema": "RAW",
+        },
         connection_factory=lambda **_: connection,
     )
     event = SessionEvent.create(
@@ -145,6 +149,7 @@ def test_snowflake_storage_writes_session_rule_and_symptom_rows():
 
     rule_insert, rule_params = connection.cursor_instance.executed[1]
     assert "insert into TRIAGE_PLATFORM.RAW.triage_rule_hits" in rule_insert
+    assert "select %s, %s, %s, parse_json(%s), %s" in rule_insert
     assert rule_params[1] == "ER001"
 
     symptom_insert, symptom_params = connection.cursor_instance.executed[2]
